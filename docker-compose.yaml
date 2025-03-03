@@ -11,10 +11,12 @@ services:
       MYSQL_USER: sync
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - internal
 
   syncserver:
     container_name: firefox_syncserver
-    build: ./app/
+    build: .
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -28,3 +30,14 @@ services:
       METRICS_HASH_SECRET: ${METRICS_HASH_SECRET}
       SYNC_SYNCSTORAGE_DATABASE_URL: mysql://sync:${MYSQL_PASSWORD}@mariadb:3306/syncstorage_rs
       SYNC_TOKENSERVER_DATABASE_URL: mysql://sync:${MYSQL_PASSWORD}@mariadb:3306/tokenserver_rs
+      LETSENCRYPT_HOST: ${DOMAIN}
+      VIRTUAL_HOST: ${DOMAIN}
+    networks:
+      - proxy_network
+      - internal
+
+networks:
+   proxy_network:
+     external: true
+   internal:
+     external: false
