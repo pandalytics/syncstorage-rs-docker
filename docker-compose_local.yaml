@@ -4,40 +4,38 @@ services:
     image: mariadb:lts
     volumes:
       - ./config:/config
-      - .init.sql:/docker-entrypoint-initdb.d/init.sql:z
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:z
     restart: unless-stopped
     environment:
       MYSQL_USER: sync
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    networks:
-      - internal
-
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      
   syncserver:
     container_name: firefox_syncserver
     build: .
     restart: unless-stopped
     ports:
       - "8000:8000"
-    depends_on:
+    depends_on:      
       mariadb:
         condition: service_healthy
     environment:
       LOGLEVEL: info
       SYNC_URL: ${SYNC_URL}
-      SYNC_CAPACITY: 10 # Max number of users that will be accepted
+      SYNC_CAPACITY: 10
       SYNC_MASTER_SECRET: ${SYNC_MASTER_SECRET}
       METRICS_HASH_SECRET: ${METRICS_HASH_SECRET}
       SYNC_SYNCSTORAGE_DATABASE_URL: mysql://sync:${MYSQL_PASSWORD}@mariadb:3306/syncstorage_rs
       SYNC_TOKENSERVER_DATABASE_URL: mysql://sync:${MYSQL_PASSWORD}@mariadb:3306/tokenserver_rs
-      LETSENCRYPT_HOST: ${DOMAIN}
-      VIRTUAL_HOST: ${DOMAIN}
-    networks:
-      - proxy_network
-      - internal
-
-networks:
-   proxy_network:
-     external: true
-   internal:
-     external: false
+    volumes:
+     - ./entrypoint.sh:/usr/local/bin/entrypoint.sh
+    

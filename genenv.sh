@@ -18,8 +18,8 @@ DOMAIN= #fill in your domain here
 SYNC_URL=https://\${DOMAIN}
 
 # MySQL passwords (should be random)
-MYSQL_ROOT_PASSWORD=$(generate_random 32)
-MYSQL_PASSWORD=$(generate_random 32)
+MYSQL_ROOT_PASSWORD=$(generate_random 16)
+MYSQL_PASSWORD=$(generate_random 16)
 
 # Master sync key (must be 64 characters long)
 SYNC_MASTER_SECRET=$(cat /dev/urandom | base32 | head -c64)

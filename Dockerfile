@@ -15,7 +15,10 @@ RUN git clone https://github.com/mozilla-services/syncstorage-rs ./ \
 RUN virtualenv venv \
     && venv/bin/pip install -r requirements.txt \
     && venv/bin/pip install -r tools/tokenserver/requirements.txt \
-    && venv/bin/pip install pyopenssl==22.1.0
+    && venv/bin/pip install pyopenssl
+
+# Cleanup
+RUN rm -rf /var/lib/{apt,dpkg,cache,log}
 
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
