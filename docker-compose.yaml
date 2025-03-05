@@ -4,7 +4,7 @@ services:
     image: mariadb:lts
     volumes:
       - ./config:/config
-      - .init.sql:/docker-entrypoint-initdb.d/init.sql:z
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:z
     restart: unless-stopped
     environment:
       MYSQL_USER: sync
